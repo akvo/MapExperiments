@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name" translatable="false">MapBoxTest</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="save">Save</string>
+    <string name="access_token" translatable="false">pk.eyJ1IjoidmFsbGxsbGxsMjAwMCIsImEiOiJjamMxeHZqdzAwN2hvMzRwcnBsdXJ5NGs2In0.67ku7z1JtMM2YLEOTiR93A</string>
+    <!--Strings for OfflineManager activity-->
+    <string name="dialog_title">Name new region</string>
+    <string name="dialog_message">Downloads the map region you currently are viewing</string>
+    <string name="dialog_positive_button">Download</string>
+    <string name="dialog_negative_button">Cancel</string>
+    <string name="dialog_toast">Region name cannot be empty.</string>
+    <string name="end_progress_success">Region downloaded successfully.</string>
+    <string name="toast_no_regions_yet">You have no regions yet.</string>
+    <string name="toast_region_deleted">Region deleted</string>
+    <string name="navigate_positive_button">Navigate to</string>
+    <string name="navigate_neutral_button_title">Delete</string>
+    <string name="navigate_negative_button_title">Cancel</string>
+    <string name="navigate_title">List</string>
+    <string name="region_name">Region %1$d</string>
+    <string name="set_region_name_hint">Enter name</string>
+    <string name="download">Download</string>
+    <string name="list">List</string>
+
+    <!--    Permissions    -->
+    <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
+    <string name="location_permission_denied">This sample requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Google Maps API Demos\'.</string>
+    <string name="permission_required_toast">Location permission is required for this demo.</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="mapbox">MapBox (offline supported)</string>
+    <string name="google_maps">Google maps (offline not supported)</string>
+</resources>
