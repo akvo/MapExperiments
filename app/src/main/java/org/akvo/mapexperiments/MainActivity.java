@@ -17,13 +17,15 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         findViewById(R.id.button_mapbox).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                startActivity(new Intent(MainActivity.this, OfflineManagerActivity.class));
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, MapBoxActivity.class));
             }
         });
 
         findViewById(R.id.button_google).setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
+            @Override
+            public void onClick(View view) {
                 startActivity(new Intent(MainActivity.this, MapsActivity.class));
             }
         });

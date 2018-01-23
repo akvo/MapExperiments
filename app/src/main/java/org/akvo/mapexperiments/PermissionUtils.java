@@ -40,6 +40,7 @@ public abstract class PermissionUtils {
     public static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
     private static final String TAG = "PermissionUtils";
+    static final int REQUEST_CHECK_SETTINGS = 3;
 
     /**
      * Requests the fine location permission. If a rationale with an additional explanation should

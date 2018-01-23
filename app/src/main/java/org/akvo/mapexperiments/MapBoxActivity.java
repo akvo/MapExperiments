@@ -1,10 +1,13 @@
 package org.akvo.mapexperiments;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,20 +40,27 @@ import java.util.List;
 public class MapBoxActivity extends AppCompatActivity implements LocationEngineListener,
         PermissionsListener {
 
+    public static final String PREFERENCE_NAME = "Prefs";
+    public static final String PREF_SHAPE = "shape";
+
     private final BitmapGenerator bitmapGenerator = new BitmapGenerator();
+    private final List<LatLng> locations = new ArrayList<>();
+    private final Gson gson = new Gson();
 
     private PermissionsManager permissionsManager;
     private LocationLayerPlugin locationPlugin;
     private LocationEngine locationEngine;
     private MapboxMap mapboxMap;
     private MapView mapView;
-    private final List<LatLng> locations = new ArrayList<>();
-    private final Gson gson = new Gson();
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_mapbox);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        sharedPreferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(new OnMapReadyCallback() {
@@ -59,7 +69,8 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
                 MapBoxActivity.this.mapboxMap = mapboxMap;
                 MapBoxActivity.this.mapboxMap.addOnCameraMoveListener(
                         new MapboxMap.OnCameraMoveListener() {
-                            @Override public void onCameraMove() {
+                            @Override
+                            public void onCameraMove() {
                                 redrawMap();
                             }
                         });
@@ -74,7 +85,6 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             // Create an instance of LOST location engine
             initializeLocationEngine();
-
             locationPlugin = new LocationLayerPlugin(mapView, mapboxMap, locationEngine);
             locationPlugin.setLocationLayerEnabled(LocationLayerMode.TRACKING);
         } else {
@@ -119,7 +129,7 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
         if (granted) {
             enableLocationPlugin();
         } else {
-            Toast.makeText(this, "Location permission not granted", Toast.LENGTH_LONG).show();
+            toast("Location permission not granted");
             finish();
         }
     }
@@ -162,6 +172,7 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
                 .width(2));
         for (LatLng latLng : locations) {
             mapboxMap.addMarker(new MarkerViewOptions()
+                    .icon(icon)
                     .position(latLng)
                     .title(((LatLngAcc) latLng).getTitle()));
         }
@@ -241,16 +252,15 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
         switch (item.getItemId()) {
             case R.id.save:
                 if (locations.size() > 0) {
-                    getSharedPreferences("Prefs", MODE_PRIVATE).edit()
-                            .putString("shape", gson.toJson(locations)).apply();
-                    Toast.makeText(this, "Shape saved", Toast.LENGTH_LONG).show();
+                    sharedPreferences.edit()
+                            .putString(PREF_SHAPE, gson.toJson(locations)).apply();
+                    toast("Shape saved");
                 }
                 return true;
             case R.id.load:
-                String savedLocationsString = getSharedPreferences("Prefs", MODE_PRIVATE)
-                        .getString("shape", null);
+                String savedLocationsString = sharedPreferences.getString(PREF_SHAPE, null);
                 if (!TextUtils.isEmpty(savedLocationsString)) {
-                    Toast.makeText(this, "Loading shape", Toast.LENGTH_LONG).show();
+                    toast("Loading shape");
                     Type type = new TypeToken<List<LatLngAcc>>(){}.getType();
                     List<LatLngAcc> locationsPref = gson.fromJson(savedLocationsString, type);
                     locations.clear();
@@ -258,11 +268,17 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
                     redrawMap();
                 }
                 return true;
+            case R.id.load_offline:
+                startActivity(new Intent(MapBoxActivity.this, OfflineManagerActivity.class));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    private void toast(String text) {
+        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
+    }
 
     public class LatLngAcc extends LatLng {
 

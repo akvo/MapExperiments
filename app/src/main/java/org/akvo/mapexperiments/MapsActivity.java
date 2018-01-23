@@ -53,8 +53,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
-    private static final int REQUEST_CHECK_SETTINGS = 3;
-
     private GoogleMap mMap;
     private boolean activityJustCreated;
 
@@ -114,6 +112,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         };
     }
 
+    //TODO: unify code with MapBoxActivity
     private void updateNewLocation(Location currentLocation) {
         if (currentLocation != null && mMap != null) {
             LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
@@ -183,7 +182,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(17.0f));
         checkLocation();
     }
 
@@ -228,7 +226,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     // result in onActivityResult().
                                     ResolvableApiException rae = (ResolvableApiException) e;
                                     rae.startResolutionForResult(MapsActivity.this,
-                                            REQUEST_CHECK_SETTINGS);
+                                            PermissionUtils.REQUEST_CHECK_SETTINGS);
                                 } catch (IntentSender.SendIntentException sie) {
                                     Log.i(TAG, "PendingIntent unable to execute request.");
                                 }

@@ -11,4 +11,9 @@
             android:title="@string/save"
             android:icon="@android:drawable/ic_menu_recent_history"
             app:showAsAction="always"/>
+    <item
+            android:id="@+id/load_offline"
+            android:title="@string/load_offline_area"
+            android:icon="@android:drawable/ic_menu_mapmode"
+            app:showAsAction="never"/>
 </menu>
