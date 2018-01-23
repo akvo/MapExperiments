@@ -1,8 +1,6 @@
 package org.akvo.mapexperiments;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,7 +37,7 @@ import java.util.List;
 public class MapBoxActivity extends AppCompatActivity implements LocationEngineListener,
         PermissionsListener {
 
-    protected static final int POINT_COLOR_FILL = 0x55FFFFFF;
+    private final BitmapGenerator bitmapGenerator = new BitmapGenerator();
 
     private PermissionsManager permissionsManager;
     private LocationLayerPlugin locationPlugin;
@@ -156,7 +154,7 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
         //TODO: save geolines to json each time
 
         IconFactory iconFactory = IconFactory.getInstance(MapBoxActivity.this);
-        Bitmap bmp = getBitmap();
+        Bitmap bmp = bitmapGenerator.getBitmap();
         Icon icon = iconFactory.fromBitmap(bmp);
         mapboxMap.addPolyline(new PolylineOptions()
                 .addAll(locations)
@@ -167,25 +165,6 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
                     .position(latLng)
                     .title(((LatLngAcc) latLng).getTitle()));
         }
-    }
-
-    @NonNull
-    private Bitmap getBitmap() {
-        Bitmap bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmp);
-
-        Paint solid = new Paint();
-        solid.setColor(0xFF00A79D);
-        solid.setAntiAlias(true);
-        Paint fill = new Paint();
-        fill.setAntiAlias(true);
-        fill.setColor(POINT_COLOR_FILL);
-
-        final float center = 40 / 2f;
-        canvas.drawCircle(center, center, center, solid);// Outer circle
-        canvas.drawCircle(center, center, center * 0.9f, fill);// Fill circle
-        canvas.drawCircle(center, center, center * 0.25f, solid);// Inner circle
-        return bmp;
     }
 
     @Override

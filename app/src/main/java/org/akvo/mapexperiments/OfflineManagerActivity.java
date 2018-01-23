@@ -53,7 +53,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
     // JSON encoding/decoding
     public static final String JSON_CHARSET = "UTF-8";
     public static final String JSON_FIELD_REGION_NAME = "FIELD_REGION_NAME";
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -142,7 +142,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission to access the location is missing.
-            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+            PermissionUtils.requestPermission(this, PermissionUtils.LOCATION_PERMISSION_REQUEST_CODE,
                     Manifest.permission.ACCESS_FINE_LOCATION, true);
         } else {
             // Access to the location has been granted to the app.
@@ -214,7 +214,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
             @NonNull int[] grantResults) {
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+        if (requestCode != PermissionUtils.LOCATION_PERMISSION_REQUEST_CODE) {
             return;
         }
 

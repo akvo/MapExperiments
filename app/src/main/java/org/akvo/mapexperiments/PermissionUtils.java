@@ -17,20 +17,29 @@
 package org.akvo.mapexperiments;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 /**
  * Utility class for access to runtime permissions.
  */
 public abstract class PermissionUtils {
+
+    public static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
+    private static final String TAG = "PermissionUtils";
 
     /**
      * Requests the fine location permission. If a rationale with an additional explanation should
@@ -47,6 +56,41 @@ public abstract class PermissionUtils {
             ActivityCompat.requestPermissions(activity, new String[]{permission}, requestId);
 
         }
+    }
+
+    public static boolean isLocationPermissionGranted(Context context) {
+        int permissionState = ActivityCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_FINE_LOCATION);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static void requestLocationPermissions(final Activity activity) {
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+        if (shouldProvideRationale) {
+            Log.i(TAG, "Displaying permission rationale to provide additional context.");
+            Snackbar.make(
+                    activity.findViewById(android.R.id.content),
+                    R.string.permission_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // Request permission
+                            requestLocationPermission(activity);
+                        }
+                    }).show();
+        } else {
+            Log.i(TAG, "Requesting permission");
+            requestLocationPermission(activity);
+        }
+    }
+
+    private static void requestLocationPermission(Activity activity) {
+        ActivityCompat.requestPermissions(activity,
+                new String[]{ Manifest.permission.ACCESS_FINE_LOCATION},
+                LOCATION_PERMISSION_REQUEST_CODE);
     }
 
     /**

@@ -28,4 +28,5 @@
     <string name="title_activity_main2">Main2Activity</string>
     <string name="mapbox">MapBox (offline supported)</string>
     <string name="google_maps">Google maps (offline not supported)</string>
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
 </resources>
