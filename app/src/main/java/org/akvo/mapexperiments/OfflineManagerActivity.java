@@ -91,7 +91,6 @@ public class OfflineManagerActivity extends AppCompatActivity {
     private SettingsClient settingsClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
-    private boolean activityJustCreated;
     private LocationSettingsRequest locationSettingsRequest;
 
     @Override
@@ -100,7 +99,6 @@ public class OfflineManagerActivity extends AppCompatActivity {
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         setContentView(R.layout.activity_offline_manager);
-        activityJustCreated = true;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         settingsClient = LocationServices.getSettingsClient(this);
@@ -518,8 +516,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
                                                 items[regionSelected], Toast.LENGTH_LONG).show();
 
                                         // Get the region bounds and zoom
-                                        LatLngBounds bounds = ((OfflineTilePyramidRegionDefinition)
-                                                offlineRegions[regionSelected].getDefinition())
+                                        LatLngBounds bounds = offlineRegions[regionSelected].getDefinition()
                                                 .getBounds();
                                         double regionZoom = ((OfflineTilePyramidRegionDefinition)
                                                 offlineRegions[regionSelected].getDefinition())
