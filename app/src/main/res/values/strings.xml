@@ -30,4 +30,6 @@
     <string name="google_maps">Google maps (offline not supported)</string>
     <string name="permission_rationale">Location permission is needed for core functionality</string>
     <string name="load_offline_area">Load offline area</string>
+    <string name="offline_help">Use 2 fingers to zoom in or out. Drag the map to move it to the desired area. Once ready, press \'download\' to save map visible area.</string>
+    <string name="title_activity_offline">Offline areas</string>
 </resources>

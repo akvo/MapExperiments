@@ -1,6 +1,8 @@
 package org.akvo.mapexperiments;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -44,7 +46,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
@@ -53,7 +55,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
             UPDATE_INTERVAL_IN_MILLISECONDS / 2;
 
-    private GoogleMap mMap;
+    public static final float ZOOM_LEVEL = 15.0F;
+
+    private GoogleMap map;
     private boolean activityJustCreated;
 
     private FusedLocationProviderClient mFusedLocationClient;
@@ -61,8 +65,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
     private LocationSettingsRequest mLocationSettingsRequest;
-    private final List<LatLng> locations = new ArrayList<>();
 
+    private final List<LatLng> locations = new ArrayList<>();
     private final BitmapGenerator bitmapGenerator = new BitmapGenerator();
     private BitmapDescriptor bitmapDescriptor;
 
@@ -92,9 +96,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
     /**
@@ -110,39 +114,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 updateNewLocation(currentLocation);
             }
         };
-    }
-
-    //TODO: unify code with MapBoxActivity
-    private void updateNewLocation(Location currentLocation) {
-        if (currentLocation != null && mMap != null) {
-            LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
-            Location lastSavedLocation = null;
-            if (lastLatLong != null) {
-                lastSavedLocation = new Location("gps");
-                lastSavedLocation.setLatitude(lastLatLong.latitude);
-                lastSavedLocation.setLongitude(lastLatLong.longitude);
-            }
-            //1 meters minimum distance for the point to be added
-            if (lastSavedLocation == null || currentLocation.distanceTo(lastSavedLocation) > 1) {
-                LatLng latLng = new LatLng(currentLocation.getLatitude(),
-                        currentLocation.getLongitude());
-                locations.add(latLng);
-                mMap.clear();
-
-                PolylineOptions line=
-                        new PolylineOptions().addAll(locations)
-                                .width(2).color(0xEE736357);
-
-                mMap.addPolyline(line);
-
-               for (LatLng l: locations) {
-                    mMap.addMarker(new MarkerOptions().icon(bitmapDescriptor)
-                            .position(l)
-                            .title(l.toString()));
-                }
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0F));
-            }
-        }
     }
 
     /**
@@ -181,14 +152,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        map = googleMap;
         checkLocation();
     }
 
     @SuppressLint("MissingPermission")
     private void checkLocation() {
         if (PermissionUtils.isLocationPermissionGranted(this)) {
-            mMap.setMyLocationEnabled(true);
+            map.setMyLocationEnabled(true);
             startLocationUpdates();
         } else {
             PermissionUtils.requestLocationPermissions(this);
@@ -236,11 +207,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         "Location settings are inadequate, and cannot be " +
                                                 "fixed here. Fix in Settings.";
                                 Log.e(TAG, errorMessage);
-                                Toast.makeText(MapsActivity.this, errorMessage, Toast.LENGTH_LONG)
-                                        .show();
+                                toast(errorMessage);
                         }
                     }
                 });
+    }
+
+    //TODO: unify code with MapBoxActivity
+    private void updateNewLocation(Location currentLocation) {
+        if (currentLocation != null && map != null) {
+            LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
+            Location lastSavedLocation = null;
+            if (lastLatLong != null) {
+                lastSavedLocation = new Location("gps");
+                lastSavedLocation.setLatitude(lastLatLong.latitude);
+                lastSavedLocation.setLongitude(lastLatLong.longitude);
+            }
+            //1 meters minimum distance for the point to be added
+            float distanceTo =
+                    lastSavedLocation == null ? 0 : currentLocation.distanceTo(lastSavedLocation);
+            if (lastSavedLocation == null || distanceTo > 1) {
+                LatLng latLng = new LatLng(currentLocation.getLatitude(),
+                        currentLocation.getLongitude());
+                locations.add(latLng);
+                float zoom = lastSavedLocation == null ? ZOOM_LEVEL : map.getCameraPosition().zoom;
+                if (zoom == 0) {
+                    zoom = ZOOM_LEVEL;
+                }
+                map.clear();
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+
+                PolylineOptions polylineOptions =
+                        new PolylineOptions().addAll(locations)
+                                .width(MapOptions.LINE_WIDHT).color(MapOptions.LINE_COLOR);
+                map.addPolyline(polylineOptions);
+
+                for (LatLng l : locations) {
+                    MarkerOptions markerOptions = new MarkerOptions().icon(bitmapDescriptor)
+                            .position(l)
+                            .anchor(0.5f, 0.5f)
+                            .title(l.toString());
+                    map.addMarker(markerOptions);
+                }
+            }
+        }
+    }
+
+    private void toast(String errorMessage) {
+        Toast.makeText(MapsActivity.this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
     @SuppressLint("MissingPermission")
@@ -254,7 +268,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.i(TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.i(TAG, "Permission granted");
-                mMap.setMyLocationEnabled(true);
+                map.setMyLocationEnabled(true);
                 startLocationUpdates();
             } else {
                 // Permission denied.
@@ -269,27 +283,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // when permissions are denied. Otherwise, your app could appear unresponsive to
                 // touches or interactions which have required permissions.
                 //TODO:
+                toast("Permissions denied");
             }
         }
     }
 
-    public class LatLngAcc {
-
-        private LatLng latLng;
-        private float accuracy = 0.0f;
-
-        public LatLngAcc(Location location) {
-            this.accuracy = location.getAccuracy();
-            this.latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        }
-
-        public float getAccuracy() {
-            return accuracy;
-        }
-
-        public String getTitle() {
-            return "Loc: " + latLng.latitude + ", " + latLng.longitude
-                    + ", acc: " + accuracy;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            // Check for the integer request code originally supplied to startResolutionForResult().
+            case PermissionUtils.REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        Log.i(TAG, "User agreed to make required location settings changes.");
+                        // Nothing to do. startLocationupdates() gets called in onResume again.
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        Log.i(TAG, "User chose not to make required location settings changes.");
+                        break;
+                }
+                break;
         }
     }
 }

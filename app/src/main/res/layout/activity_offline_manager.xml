@@ -19,14 +19,14 @@
     </com.mapbox.mapboxsdk.maps.MapView>
 
     <TextView
-            android:text="Use 2 fingers to zoom in or out. Drag the map to move it to the desired area. Once ready, press 'download' to save map visible area."
+            android:text="@string/offline_help"
             android:paddingTop="8dp"
             android:paddingLeft="25dp"
             android:paddingRight="25dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/black"
-            android:background="#20FFFFFF"
+            android:background="#99FFFFFF"
             android:id="@+id/textView"/>
 
     <ProgressBar
@@ -59,18 +59,6 @@
                 android:background="@android:color/transparent"
                 android:clickable="true"
                 android:text="@string/download"
-                android:textAllCaps="false"
-                android:textColor="@android:color/white"
-                android:textSize="12sp"/>
-
-        <Button
-                android:id="@+id/list_button"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"
-                android:background="@android:color/transparent"
-                android:text="@string/list"
                 android:textAllCaps="false"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"/>

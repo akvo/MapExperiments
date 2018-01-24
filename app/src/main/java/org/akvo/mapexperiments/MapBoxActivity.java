@@ -178,10 +178,11 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
         Icon icon = iconFactory.fromBitmap(bmp);
         mapboxMap.addPolyline(new PolylineOptions()
                 .addAll(locations)
-                .color(0xEE736357)
-                .width(2));
+                .color(MapOptions.LINE_COLOR)
+                .width(MapOptions.LINE_WIDHT));
         for (LatLng latLng : locations) {
             mapboxMap.addMarker(new MarkerViewOptions()
+                    .anchor(0.5f, 0.5f)
                     .icon(icon)
                     .position(latLng)
                     .title(((LatLngAcc) latLng).getTitle()));

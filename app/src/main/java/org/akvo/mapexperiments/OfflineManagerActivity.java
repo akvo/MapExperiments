@@ -31,7 +31,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -45,8 +44,6 @@ import com.mapbox.mapboxsdk.offline.OfflineRegionStatus;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 /**
  * Download, view, navigate to, and delete an offline region.
@@ -76,15 +73,12 @@ public class OfflineManagerActivity extends AppCompatActivity {
     private MapboxMap map;
     private ProgressBar progressBar;
     private Button downloadButton;
-    private Button listButton;
 
     private boolean isEndNotified;
-    private int regionSelected;
 
     // Offline objects
     private OfflineManager offlineManager;
     private OfflineRegion offlineRegion;
-    private RegionMapper regionMapper;
 
     private boolean permissionDenied = false;
     private FusedLocationProviderClient fusedLocationClient;
@@ -102,8 +96,6 @@ public class OfflineManagerActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         settingsClient = LocationServices.getSettingsClient(this);
-
-        regionMapper = new RegionMapper(getString(R.string.region_name));
 
         createLocationCallback();
         createLocationRequest();
@@ -126,8 +118,6 @@ public class OfflineManagerActivity extends AppCompatActivity {
         // Set up the offlineManager
         offlineManager = OfflineManager.getInstance(this);
 
-        // Bottom navigation bar button clicks are handled here.
-        // Download offline button
         downloadButton = findViewById(R.id.download_button);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,16 +125,6 @@ public class OfflineManagerActivity extends AppCompatActivity {
                 downloadRegionDialog();
             }
         });
-
-        // List offline regions
-        listButton = findViewById(R.id.list_button);
-        listButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                downloadedRegionList();
-            }
-        });
-
     }
 
     /**
@@ -474,127 +454,10 @@ public class OfflineManagerActivity extends AppCompatActivity {
         offlineRegion.setDownloadState(OfflineRegion.STATE_ACTIVE);
     }
 
-    private void downloadedRegionList() {
-        // Build a region list when the user clicks the list button
-
-        // Reset the region selected int to 0
-        regionSelected = 0;
-
-        // Query the DB asynchronously
-        offlineManager.listOfflineRegions(new OfflineManager.ListOfflineRegionsCallback() {
-            @Override
-            public void onList(final OfflineRegion[] offlineRegions) {
-                // Check result. If no regions have been
-                // downloaded yet, notify user and return
-                if (offlineRegions == null || offlineRegions.length == 0) {
-                    Toast.makeText(getApplicationContext(),
-                            getString(R.string.toast_no_regions_yet), Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Add all of the region names to a list
-                ArrayList<String> offlineRegionsNames = new ArrayList<>();
-                for (OfflineRegion offlineRegion : offlineRegions) {
-                    offlineRegionsNames.add(regionMapper.getRegionName(offlineRegion));
-                }
-                final CharSequence[] items = offlineRegionsNames
-                        .toArray(new CharSequence[offlineRegionsNames.size()]);
-
-                // Build a dialog containing the list of regions
-                AlertDialog dialog = new AlertDialog.Builder(OfflineManagerActivity.this)
-                        .setTitle(getString(R.string.navigate_title))
-                        .setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Track which region the user selects
-                                regionSelected = which;
-                            }
-                        })
-                        .setPositiveButton(getString(R.string.navigate_positive_button),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int id) {
-
-                                        Toast.makeText(OfflineManagerActivity.this,
-                                                items[regionSelected], Toast.LENGTH_LONG).show();
-
-                                        // Get the region bounds and zoom
-                                        LatLngBounds bounds = offlineRegions[regionSelected].getDefinition()
-                                                .getBounds();
-                                        double regionZoom = ((OfflineTilePyramidRegionDefinition)
-                                                offlineRegions[regionSelected].getDefinition())
-                                                .getMinZoom();
-
-                                        // Create new camera position
-                                        CameraPosition cameraPosition = new CameraPosition.Builder()
-                                                .target(bounds.getCenter())
-                                                .zoom(regionZoom)
-                                                .build();
-
-                                        // Move camera to new position
-                                        map.moveCamera(CameraUpdateFactory
-                                                .newCameraPosition(cameraPosition));
-
-                                    }
-                                })
-                        .setNeutralButton(getString(R.string.navigate_neutral_button_title),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // Make progressBar indeterminate and
-                                        // set it to visible to signal that
-                                        // the deletion process has begun
-                                        progressBar.setIndeterminate(true);
-                                        progressBar.setVisibility(View.VISIBLE);
-
-                                        // Begin the deletion process
-                                        offlineRegions[regionSelected]
-                                                .delete(new OfflineRegion.OfflineRegionDeleteCallback() {
-                                                    @Override
-                                                    public void onDelete() {
-                                                        // Once the region is deleted, remove the
-                                                        // progressBar and display a toast
-                                                        progressBar.setVisibility(View.INVISIBLE);
-                                                        progressBar.setIndeterminate(false);
-                                                        Toast.makeText(getApplicationContext(),
-                                                                getString(
-                                                                        R.string.toast_region_deleted),
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-
-                                                    @Override
-                                                    public void onError(String error) {
-                                                        progressBar.setVisibility(View.INVISIBLE);
-                                                        progressBar.setIndeterminate(false);
-                                                        Log.e(TAG, "Error: " + error);
-                                                    }
-                                                });
-                                    }
-                                })
-                        .setNegativeButton(getString(R.string.navigate_negative_button_title),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // When the user cancels, don't do anything.
-                                        // The dialog will automatically close
-                                    }
-                                }).create();
-                dialog.show();
-
-            }
-
-            @Override
-            public void onError(String error) {
-                Log.e(TAG, "Error: " + error);
-            }
-        });
-    }
-
     // Progress bar methods
     private void startProgress() {
         // Disable buttons
         downloadButton.setEnabled(false);
-        listButton.setEnabled(false);
 
         // Start and show the progress bar
         isEndNotified = false;
@@ -615,7 +478,6 @@ public class OfflineManagerActivity extends AppCompatActivity {
 
         // Enable buttons
         downloadButton.setEnabled(true);
-        listButton.setEnabled(true);
 
         // Stop and hide the progress bar
         isEndNotified = true;
