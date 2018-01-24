@@ -27,11 +27,7 @@ dependencies {
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
 
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:5.3.0'
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.2.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-ui:2.2.9'
-
-    implementation "android.arch.lifecycle:extensions:1.0.0"
-    annotationProcessor "android.arch.lifecycle:compiler:1.0.0"
 
     implementation "com.google.android.gms:play-services-maps:${gmsLibVersion}"
     implementation "com.google.android.gms:play-services-location:${gmsLibVersion}"

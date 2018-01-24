@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -29,33 +27,22 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.offline.OfflineRegion;
 import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
 import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerMode;
-import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
-import com.mapbox.services.android.telemetry.location.LocationEngine;
-import com.mapbox.services.android.telemetry.location.LocationEngineListener;
-import com.mapbox.services.android.telemetry.location.LocationEnginePriority;
-import com.mapbox.services.android.telemetry.location.LostLocationEngine;
-import com.mapbox.services.android.telemetry.permissions.PermissionsListener;
-import com.mapbox.services.android.telemetry.permissions.PermissionsManager;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapBoxActivity extends AppCompatActivity implements LocationEngineListener,
-        PermissionsListener, RegionsListDialogFragment.RegionsSelectionListener {
+public class MapBoxActivity extends LocationAwareActivity
+        implements RegionsListDialogFragment.RegionsSelectionListener {
 
     public static final String PREFERENCE_NAME = "Prefs";
     public static final String PREF_SHAPE = "shape";
-    public static final int ZOOM_LEVEL = 16;
+    public static final double ZOOM_LEVEL = 16;
 
     private final BitmapGenerator bitmapGenerator = new BitmapGenerator();
     private final List<LatLng> locations = new ArrayList<>();
     private final Gson gson = new Gson();
 
-    private PermissionsManager permissionsManager;
-    private LocationLayerPlugin locationPlugin;
-    private LocationEngine locationEngine;
     private MapboxMap mapboxMap;
     private MapView mapView;
     private SharedPreferences sharedPreferences;
@@ -74,98 +61,34 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 MapBoxActivity.this.mapboxMap = mapboxMap;
-                MapBoxActivity.this.mapboxMap.addOnCameraMoveListener(
-                        new MapboxMap.OnCameraMoveListener() {
-                            @Override
-                            public void onCameraMove() {
-                                redrawMap();
-                            }
-                        });
-                enableLocationPlugin();
+                checkLocation();
             }
         });
     }
 
-    @SuppressWarnings({ "MissingPermission" })
-    private void enableLocationPlugin() {
-        // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            // Create an instance of LOST location engine
-            initializeLocationEngine();
-            locationPlugin = new LocationLayerPlugin(mapView, mapboxMap, locationEngine);
-            locationPlugin.setLocationLayerEnabled(LocationLayerMode.TRACKING);
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(this);
-        }
-    }
-
-    @SuppressWarnings({ "MissingPermission" })
-    private void initializeLocationEngine() {
-        locationEngine = new LostLocationEngine(MapBoxActivity.this);
-        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
-        locationEngine.activate();
-
-        Location lastLocation = locationEngine.getLastLocation();
-
-        if (lastLocation != null) {
-            updateLocations(lastLocation);
-            if (!manualAreaSelected){
-                // if manual area selected we do not want to navigate out of it
-                setCameraPosition(lastLocation);
-            }
-        }
-        locationEngine.addLocationEngineListener(this);
-    }
-
-    private void setCameraPosition(Location location) {
-        mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), ZOOM_LEVEL));
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
-        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+    protected void updateNewLocation(Location currentLocation) {
+        LatLngAcc latestLatLng = new LatLngAcc(currentLocation);
 
-    @Override
-    public void onExplanationNeeded(List<String> permissionsToExplain) {
-        //TODO:
-    }
-
-    @Override
-    public void onPermissionResult(boolean granted) {
-        if (granted) {
-            enableLocationPlugin();
-        } else {
-            toast("Location permission not granted");
-            finish();
-        }
-    }
-
-    @Override
-    @SuppressWarnings({ "MissingPermission" })
-    public void onConnected() {
-        locationEngine.requestLocationUpdates();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            setCameraPosition(location);
-            updateLocations(location);
-        }
-    }
-
-    private void updateLocations(Location location) {
-        LatLngAcc latestLatLng = new LatLngAcc(location);
         LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
         //1 meters minimum distance for the point to be added
         if (lastLatLong == null || latestLatLng.distanceTo(lastLatLong) > 1) {
+            if (!manualAreaSelected) {
+                double zoom = lastLatLong == null ? ZOOM_LEVEL : mapboxMap.getCameraPosition().zoom;
+                if (zoom == 0) {
+                    zoom = ZOOM_LEVEL;
+                }
+                mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), zoom));
+            }
             locations.add(latestLatLng);
             redrawMap();
         }
+    }
+
+    @Override
+    protected void enableMapLocation() {
+        //Ignore
     }
 
     private void redrawMap() {
@@ -190,12 +113,8 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
     }
 
     @Override
-    @SuppressWarnings({ "MissingPermission" })
     protected void onStart() {
         super.onStart();
-        if (locationPlugin != null) {
-            locationPlugin.onStart();
-        }
         mapView.onStart();
     }
 
@@ -203,32 +122,18 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
     protected void onResume() {
         super.onResume();
         mapView.onResume();
-        if (mapboxMap != null) {
-            enableLocationPlugin();
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mapView.onPause();
-        stopUpdatingLocation();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopUpdatingLocation();
-        if (locationPlugin != null) {
-            locationPlugin.onStop();
-        }
         mapView.onStop();
-    }
-
-    private void stopUpdatingLocation() {
-        if (locationEngine != null) {
-            locationEngine.removeLocationEngineListener(this);
-        }
     }
 
     @Override
@@ -241,9 +146,6 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
     protected void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-        if (locationEngine != null) {
-            locationEngine.deactivate();
-        }
     }
 
     @Override
@@ -272,7 +174,8 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
                 String savedLocationsString = sharedPreferences.getString(PREF_SHAPE, null);
                 if (!TextUtils.isEmpty(savedLocationsString)) {
                     toast("Loading shape");
-                    Type type = new TypeToken<List<LatLngAcc>>(){}.getType();
+                    Type type = new TypeToken<List<LatLngAcc>>() {
+                    }.getType();
                     List<LatLngAcc> locationsPref = gson.fromJson(savedLocationsString, type);
                     locations.clear();
                     locations.addAll(locationsPref);
