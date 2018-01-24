@@ -137,11 +137,12 @@ public abstract class LocationAwareActivity extends AppCompatActivity {
      * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
      * runtime permission has been granted.
      */
+    @SuppressLint("MissingPermission")
     private void startLocationUpdates() {
         // Begin by checking if the device has the necessary location settings.
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
                 .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-                    @SuppressLint("MissingPermission")
+
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
                         Log.i(TAG, "All location settings are satisfied.");
@@ -175,6 +176,7 @@ public abstract class LocationAwareActivity extends AppCompatActivity {
                                                 "fixed here. Fix in Settings.";
                                 Log.e(TAG, errorMessage);
                                 toast(errorMessage);
+                                //FIXME this often happens when device in flight mode, need a backup plan in this case
                         }
                     }
                 });
