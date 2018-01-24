@@ -1,6 +1,5 @@
 package org.akvo.mapexperiments;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -85,6 +84,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
     // Offline objects
     private OfflineManager offlineManager;
     private OfflineRegion offlineRegion;
+    private RegionMapper regionMapper;
 
     private boolean permissionDenied = false;
     private FusedLocationProviderClient fusedLocationClient;
@@ -102,6 +102,8 @@ public class OfflineManagerActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         settingsClient = LocationServices.getSettingsClient(this);
+
+        regionMapper = new RegionMapper(getString(R.string.region_name));
 
         createLocationCallback();
         createLocationRequest();
@@ -240,8 +242,8 @@ public class OfflineManagerActivity extends AppCompatActivity {
     }
 
     private void setCameraPosition(@NonNull Location location) {
-        map.animateCamera(CameraUpdateFactory.newLatLng(
-                new LatLng(location.getLatitude(), location.getLongitude())));
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
     }
 
     @Override
@@ -251,8 +253,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
             return;
         }
 
-        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (PermissionUtils.isLocationPermissionGranted(this)) {
             enableMyLocation();
         } else {
             permissionDenied = true;
@@ -269,7 +270,9 @@ public class OfflineManagerActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             Location mLastKnownLocation = task.getResult();
-                            setCameraPosition(mLastKnownLocation);
+                            if (mLastKnownLocation != null){
+                                setCameraPosition(mLastKnownLocation);
+                            }
                         } else {
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
@@ -492,7 +495,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
                 // Add all of the region names to a list
                 ArrayList<String> offlineRegionsNames = new ArrayList<>();
                 for (OfflineRegion offlineRegion : offlineRegions) {
-                    offlineRegionsNames.add(getRegionName(offlineRegion));
+                    offlineRegionsNames.add(regionMapper.getRegionName(offlineRegion));
                 }
                 final CharSequence[] items = offlineRegionsNames
                         .toArray(new CharSequence[offlineRegionsNames.size()]);
@@ -585,22 +588,6 @@ public class OfflineManagerActivity extends AppCompatActivity {
                 Log.e(TAG, "Error: " + error);
             }
         });
-    }
-
-    private String getRegionName(OfflineRegion offlineRegion) {
-        // Get the region name from the offline region metadata
-        String regionName;
-
-        try {
-            byte[] metadata = offlineRegion.getMetadata();
-            String json = new String(metadata, JSON_CHARSET);
-            JSONObject jsonObject = new JSONObject(json);
-            regionName = jsonObject.getString(JSON_FIELD_REGION_NAME);
-        } catch (Exception exception) {
-            Log.e(TAG, "Failed to decode metadata: " + exception.getMessage());
-            regionName = String.format(getString(R.string.region_name), offlineRegion.getID());
-        }
-        return regionName;
     }
 
     // Progress bar methods

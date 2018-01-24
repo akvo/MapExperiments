@@ -12,10 +12,10 @@
     <string name="end_progress_success">Region downloaded successfully.</string>
     <string name="toast_no_regions_yet">You have no regions yet.</string>
     <string name="toast_region_deleted">Region deleted</string>
-    <string name="navigate_positive_button">Navigate to</string>
+    <string name="navigate_positive_button">Add new</string>
     <string name="navigate_neutral_button_title">Delete</string>
     <string name="navigate_negative_button_title">Cancel</string>
-    <string name="navigate_title">List</string>
+    <string name="navigate_title">Available offline areas</string>
     <string name="region_name">Region %1$d</string>
     <string name="set_region_name_hint">Enter name</string>
     <string name="download">Download</string>

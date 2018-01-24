@@ -19,11 +19,16 @@ import com.mapbox.mapboxsdk.annotations.Icon;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.MarkerViewOptions;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.offline.OfflineRegion;
+import com.mapbox.mapboxsdk.offline.OfflineRegionDefinition;
+import com.mapbox.mapboxsdk.offline.OfflineTilePyramidRegionDefinition;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerMode;
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
 import com.mapbox.services.android.telemetry.location.LocationEngine;
@@ -38,10 +43,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MapBoxActivity extends AppCompatActivity implements LocationEngineListener,
-        PermissionsListener {
+        PermissionsListener, RegionsListDialogFragment.RegionsSelectionListener {
 
     public static final String PREFERENCE_NAME = "Prefs";
     public static final String PREF_SHAPE = "shape";
+    public static final int ZOOM_LEVEL = 16;
 
     private final BitmapGenerator bitmapGenerator = new BitmapGenerator();
     private final List<LatLng> locations = new ArrayList<>();
@@ -53,6 +59,7 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
     private MapboxMap mapboxMap;
     private MapView mapView;
     private SharedPreferences sharedPreferences;
+    private boolean manualAreaSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,14 +110,17 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
 
         if (lastLocation != null) {
             updateLocations(lastLocation);
-            setCameraPosition(lastLocation);
+            if (!manualAreaSelected){
+                // if manual area selected we do not want to navigate out of it
+                setCameraPosition(lastLocation);
+            }
         }
         locationEngine.addLocationEngineListener(this);
     }
 
     private void setCameraPosition(Location location) {
         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(location.getLatitude(), location.getLongitude()), 16));
+                new LatLng(location.getLatitude(), location.getLongitude()), ZOOM_LEVEL));
     }
 
     @Override
@@ -269,7 +279,8 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
                 }
                 return true;
             case R.id.load_offline:
-                startActivity(new Intent(MapBoxActivity.this, OfflineManagerActivity.class));
+                RegionsListDialogFragment fragment = RegionsListDialogFragment.newInstance();
+                fragment.show(getSupportFragmentManager(), RegionsListDialogFragment.TAG);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -280,11 +291,37 @@ public class MapBoxActivity extends AppCompatActivity implements LocationEngineL
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void onAddNewSelected() {
+        startActivity(new Intent(MapBoxActivity.this, OfflineManagerActivity.class));
+    }
+
+    @Override
+    public void onRegionSelected(OfflineRegion region) {
+        OfflineRegionDefinition definition = region.getDefinition();
+        LatLngBounds bounds = definition
+                .getBounds();
+        double regionZoom = ((OfflineTilePyramidRegionDefinition)
+                definition)
+                .getMinZoom();
+
+        // Create new camera position
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(bounds.getCenter())
+                .zoom(regionZoom)
+                .build();
+
+        // Move camera to new position
+        mapboxMap.moveCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
+        manualAreaSelected = true;
+    }
+
     public class LatLngAcc extends LatLng {
 
         private float accuracy = 0.0f;
 
-        public LatLngAcc(Location location) {
+        LatLngAcc(Location location) {
             super(location);
             this.accuracy = location.getAccuracy();
         }

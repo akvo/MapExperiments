@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".OfflineManagerActivity">
-
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mapView"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:mapbox_styleUrl="@string/mapbox_style_mapbox_streets"
-        mapbox:mapbox_cameraZoom="16"
-        mapbox:mapbox_cameraZoomMin="10">
+        tools:context=".OfflineManagerActivity">
+
+    <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            mapbox:mapbox_styleUrl="@string/mapbox_style_mapbox_streets"
+            mapbox:mapbox_cameraZoom="16"
+            mapbox:mapbox_cameraZoomMin="10">
 
 
     </com.mapbox.mapboxsdk.maps.MapView>
@@ -26,53 +26,54 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/black"
-            android:background="20#FFFFFF"
+            android:background="#20FFFFFF"
             android:id="@+id/textView"/>
+
     <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:layout_centerHorizontal="true"
-        android:layout_centerInParent="true"
-        android:paddingLeft="25dp"
-        android:paddingRight="25dp"
-        android:visibility="gone"/>
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerInParent="true"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:visibility="gone"/>
 
     <LinearLayout
-        android:id="@+id/bottom_navigation"
-        style="?android:attr/buttonBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/colorAccent"
-        android:elevation="8dp"
-        android:orientation="horizontal"
-        android:paddingTop="8dp">
+            android:id="@+id/bottom_navigation"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/colorAccent"
+            android:elevation="8dp"
+            android:orientation="horizontal"
+            android:paddingTop="8dp">
 
         <Button
-            android:id="@+id/download_button"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:clickable="true"
-            android:text="@string/download"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"/>
+                android:id="@+id/download_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:text="@string/download"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"/>
 
         <Button
-            android:id="@+id/list_button"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            android:background="@android:color/transparent"
-            android:text="@string/list"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"/>
+                android:id="@+id/list_button"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:background="@android:color/transparent"
+                android:text="@string/list"
+                android:textAllCaps="false"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"/>
 
     </LinearLayout>
 </RelativeLayout>
