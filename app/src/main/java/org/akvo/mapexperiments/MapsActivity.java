@@ -66,9 +66,8 @@ public class MapsActivity extends LocationAwareActivity implements OnMapReadyCal
             //1 meters minimum distance for the point to be added
             float distanceTo =
                     lastSavedLocation == null ? 0 : location.distanceTo(lastSavedLocation);
-            if (lastSavedLocation == null || distanceTo > 1) {
-                LatLng latLng = new LatLng(location.getLatitude(),
-                        location.getLongitude());
+            if (lastSavedLocation == null || distanceTo > MapOptions.MINIMUM_DISTANCE) {
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 locations.add(latLng);
                 float zoom = lastSavedLocation == null ? ZOOM_LEVEL : map.getCameraPosition().zoom;
                 if (zoom == 0) {
@@ -85,7 +84,7 @@ public class MapsActivity extends LocationAwareActivity implements OnMapReadyCal
                 for (LatLng l : locations) {
                     MarkerOptions markerOptions = new MarkerOptions().icon(bitmapDescriptor)
                             .position(l)
-                            .anchor(0.5f, 0.5f)
+                            .anchor(MapOptions.MARKER_ANCHOR, MapOptions.MARKER_ANCHOR)
                             .title(l.toString());
                     map.addMarker(markerOptions);
                 }

@@ -76,7 +76,7 @@ public class MapBoxActivity extends LocationAwareActivity
 
         LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
         //1 meters minimum distance for the point to be added
-        if (lastLatLong == null || latestLatLng.distanceTo(lastLatLong) > 1) {
+        if (lastLatLong == null || latestLatLng.distanceTo(lastLatLong) > MapOptions.MINIMUM_DISTANCE) {
             if (!manualAreaSelected) {
                 double zoom = lastLatLong == null ? ZOOM_LEVEL : mapboxMap.getCameraPosition().zoom;
                 if (zoom == 0) {
@@ -109,7 +109,7 @@ public class MapBoxActivity extends LocationAwareActivity
                 .width(MapOptions.LINE_WIDHT));
         for (LatLng latLng : locations) {
             mapboxMap.addMarker(new MarkerViewOptions()
-                    .anchor(0.5f, 0.5f)
+                    .anchor(MapOptions.MARKER_ANCHOR, MapOptions.MARKER_ANCHOR)
                     .icon(icon)
                     .position(latLng)
                     .title(((LatLngAcc) latLng).getTitle()));
