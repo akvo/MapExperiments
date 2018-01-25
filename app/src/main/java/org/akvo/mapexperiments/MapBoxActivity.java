@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -67,8 +68,11 @@ public class MapBoxActivity extends LocationAwareActivity
     }
 
     @Override
-    protected void updateNewLocation(Location currentLocation) {
-        LatLngAcc latestLatLng = new LatLngAcc(currentLocation);
+    protected void updateNewLocation(@Nullable Location location) {
+        if (location == null) {
+            return;
+        }
+        LatLngAcc latestLatLng = new LatLngAcc(location);
 
         LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
         //1 meters minimum distance for the point to be added
@@ -79,7 +83,7 @@ public class MapBoxActivity extends LocationAwareActivity
                     zoom = ZOOM_LEVEL;
                 }
                 mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), zoom));
+                        new LatLng(location.getLatitude(), location.getLongitude()), zoom));
             }
             locations.add(latestLatLng);
             redrawMap();

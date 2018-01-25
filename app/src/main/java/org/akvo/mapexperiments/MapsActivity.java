@@ -3,6 +3,7 @@ package org.akvo.mapexperiments;
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -53,8 +54,8 @@ public class MapsActivity extends LocationAwareActivity implements OnMapReadyCal
 
     //TODO: unify code with MapBoxActivity
     @Override
-    protected void updateNewLocation(Location currentLocation) {
-        if (currentLocation != null && map != null) {
+    protected void updateNewLocation(@Nullable Location location) {
+        if (location != null && map != null) {
             LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
             Location lastSavedLocation = null;
             if (lastLatLong != null) {
@@ -64,10 +65,10 @@ public class MapsActivity extends LocationAwareActivity implements OnMapReadyCal
             }
             //1 meters minimum distance for the point to be added
             float distanceTo =
-                    lastSavedLocation == null ? 0 : currentLocation.distanceTo(lastSavedLocation);
+                    lastSavedLocation == null ? 0 : location.distanceTo(lastSavedLocation);
             if (lastSavedLocation == null || distanceTo > 1) {
-                LatLng latLng = new LatLng(currentLocation.getLatitude(),
-                        currentLocation.getLongitude());
+                LatLng latLng = new LatLng(location.getLatitude(),
+                        location.getLongitude());
                 locations.add(latLng);
                 float zoom = lastSavedLocation == null ? ZOOM_LEVEL : map.getCameraPosition().zoom;
                 if (zoom == 0) {
