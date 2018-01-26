@@ -5,12 +5,12 @@
             android:id="@+id/save"
             android:title="@string/save"
             android:icon="@android:drawable/ic_menu_save"
-            app:showAsAction="always"/>
+            app:showAsAction="never"/>
     <item
             android:id="@+id/load"
-            android:title="@string/save"
+            android:title="@string/load"
             android:icon="@android:drawable/ic_menu_recent_history"
-            app:showAsAction="always"/>
+            app:showAsAction="never"/>
     <item
             android:id="@+id/load_offline"
             android:title="@string/load_offline_area"

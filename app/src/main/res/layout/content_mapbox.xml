@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:mapbox="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        tools:showIn="@layout/activity_mapbox"
         tools:context=".MapBoxActivity">
 
     <com.mapbox.mapboxsdk.maps.MapView
@@ -15,4 +17,4 @@
             mapbox:mapbox_cameraTargetLat="41.39"
             mapbox:mapbox_cameraTargetLng="2.17"
             mapbox:mapbox_cameraZoom="15"/>
-</RelativeLayout>
+</LinearLayout>

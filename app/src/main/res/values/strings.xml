@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">MapBoxTest</string>
     <string name="title_activity_maps">Map</string>
-    <string name="save">Save</string>
     <string name="access_token" translatable="false">pk.eyJ1IjoidmFsbGxsbGxsMjAwMCIsImEiOiJjamMxeHZqdzAwN2hvMzRwcnBsdXJ5NGs2In0.67ku7z1JtMM2YLEOTiR93A</string>
     <!--Strings for OfflineManager activity-->
     <string name="dialog_title">Name new region</string>
@@ -25,11 +24,14 @@
     <string name="permission_rationale_location">Access to the location service is required to demonstrate the \'my location\' feature, which shows your current location on the map.</string>
     <string name="location_permission_denied">This sample requires location permission to enable the \'my location\' layer. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings &gt; Apps &gt; \'Google Maps API Demos\'.</string>
     <string name="permission_required_toast">Location permission is required for this demo.</string>
-    <string name="title_activity_main2">Main2Activity</string>
+
     <string name="mapbox">MapBox (offline supported)</string>
     <string name="google_maps">Google maps (offline not supported)</string>
     <string name="permission_rationale">Location permission is needed for core functionality</string>
     <string name="load_offline_area">Load offline area</string>
     <string name="offline_help">Use 2 fingers to zoom in or out. Drag the map to move it to the desired area. Once ready, press \'download\' to save map visible area.</string>
     <string name="title_activity_offline">Offline areas</string>
+
+    <string name="load">Load last shape</string>
+    <string name="save">Save created shape</string>
 </resources>

@@ -23,7 +23,7 @@ allprojects {
 }
 
 ext {
-    supportLibVersion = "26.1.0"
+    supportLibVersion = "27.0.2"
     gmsLibVersion = "11.8.0"
 }
 

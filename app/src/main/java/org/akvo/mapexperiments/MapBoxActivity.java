@@ -54,8 +54,10 @@ public class MapBoxActivity extends LocationAwareActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mapbox);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         sharedPreferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
 
         IconFactory iconFactory = IconFactory.getInstance(MapBoxActivity.this);
