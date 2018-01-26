@@ -48,6 +48,7 @@ public class MapBoxActivity extends LocationAwareActivity
     private MapView mapView;
     private SharedPreferences sharedPreferences;
     private boolean manualAreaSelected;
+    private Icon icon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +57,11 @@ public class MapBoxActivity extends LocationAwareActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         sharedPreferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
+
+        IconFactory iconFactory = IconFactory.getInstance(MapBoxActivity.this);
+        Bitmap bmp = bitmapGenerator.getBitmap();
+        icon = iconFactory.fromBitmap(bmp);
+
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(new OnMapReadyCallback() {
@@ -76,7 +82,8 @@ public class MapBoxActivity extends LocationAwareActivity
 
         LatLng lastLatLong = locations.size() == 0 ? null : locations.get(locations.size() - 1);
         //1 meters minimum distance for the point to be added
-        if (lastLatLong == null || latestLatLng.distanceTo(lastLatLong) > MapOptions.MINIMUM_DISTANCE) {
+        if (lastLatLong == null
+                || latestLatLng.distanceTo(lastLatLong) > MapOptions.MINIMUM_DISTANCE) {
             if (!manualAreaSelected) {
                 double zoom = lastLatLong == null ? ZOOM_LEVEL : mapboxMap.getCameraPosition().zoom;
                 if (zoom == 0) {
@@ -100,9 +107,6 @@ public class MapBoxActivity extends LocationAwareActivity
 
         //TODO: save geolines to json each time
 
-        IconFactory iconFactory = IconFactory.getInstance(MapBoxActivity.this);
-        Bitmap bmp = bitmapGenerator.getBitmap();
-        Icon icon = iconFactory.fromBitmap(bmp);
         mapboxMap.addPolyline(new PolylineOptions()
                 .addAll(locations)
                 .color(MapOptions.LINE_COLOR)
@@ -183,6 +187,7 @@ public class MapBoxActivity extends LocationAwareActivity
                     List<LatLngAcc> locationsPref = gson.fromJson(savedLocationsString, type);
                     locations.clear();
                     locations.addAll(locationsPref);
+                    //TODO: center map on last location item.
                     redrawMap();
                 }
                 return true;
