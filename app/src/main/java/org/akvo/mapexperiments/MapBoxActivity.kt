@@ -34,9 +34,7 @@ import org.akvo.mapexperiments.RegionsListDialogFragment.RegionsSelectionListene
 import java.util.ArrayList
 
 class MapBoxActivity : LocationAwareActivity(), RegionsSelectionListener {
-    private val bitmapGenerator = BitmapGenerator()
-    private val locations: MutableList<LatLng> =
-        ArrayList()
+    private val locations: MutableList<LatLng> = ArrayList()
     private val gson = Gson()
     private lateinit var mapboxMap: MapboxMap
     private lateinit var mapView: MapView
@@ -79,7 +77,7 @@ class MapBoxActivity : LocationAwareActivity(), RegionsSelectionListener {
         val latestLatLng = LatLngAcc(location)
         val lastLatLong =
             if (locations.size == 0) null else locations[locations.size - 1]
-        //1 meters minimum distance for the point to be added
+        //5 meters minimum distance for the point to be added
         if (lastLatLong == null
             || latestLatLng.distanceTo(lastLatLong) > MapOptions.MINIMUM_DISTANCE
         ) {

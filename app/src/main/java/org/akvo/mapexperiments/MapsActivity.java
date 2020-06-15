@@ -78,7 +78,7 @@ public class MapsActivity extends LocationAwareActivity implements OnMapReadyCal
 
                 PolylineOptions polylineOptions =
                         new PolylineOptions().addAll(locations)
-                                .width(MapOptions.LINE_WIDHT).color(MapOptions.LINE_COLOR);
+                                .width(MapOptions.LINE_WIDTH).color(MapOptions.LINE_COLOR);
                 map.addPolyline(polylineOptions);
 
                 for (LatLng l : locations) {
