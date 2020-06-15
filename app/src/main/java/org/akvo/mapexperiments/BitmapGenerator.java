@@ -3,7 +3,7 @@ package org.akvo.mapexperiments;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 class BitmapGenerator {
 

@@ -20,8 +20,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 

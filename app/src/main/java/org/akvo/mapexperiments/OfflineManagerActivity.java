@@ -7,8 +7,8 @@ import android.content.IntentSender;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -370,7 +370,7 @@ public class OfflineManagerActivity extends AppCompatActivity {
 
         // Create offline definition using the current
         // style and boundaries of visible map area
-        String styleUrl = map.getStyleUrl();
+        String styleUrl = map.getStyle().getUrl();
         LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
         double minZoom = map.getCameraPosition().zoom;
         double maxZoom = map.getMaxZoomLevel();
