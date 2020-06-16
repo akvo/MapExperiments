@@ -15,5 +15,6 @@
             android:id="@+id/load_offline"
             android:title="@string/load_offline_area"
             android:icon="@android:drawable/ic_menu_mapmode"
+            android:visible="false"
             app:showAsAction="never"/>
 </menu>

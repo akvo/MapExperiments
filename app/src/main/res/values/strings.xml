@@ -34,4 +34,7 @@
 
     <string name="load">Load last shape</string>
     <string name="save">Save created shape</string>
+    <string name="last_location">Last location: %1$s </string>
+    <string name="start_recording">Start Recording</string>
+    <string name="stop_recording">Stop Recording</string>
 </resources>
